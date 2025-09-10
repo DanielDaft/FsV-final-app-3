@@ -3927,16 +3927,26 @@ function handleTouchEnd(studentId, categoryKey, sectionKey, itemKey, event) {
 }
 
 function toggleProgressItem(studentId, categoryKey, sectionKey, itemKey, event) {
-  // DETAILLIERTES PWA-DEBUGGING
+  // DETAILLIERTES PWA-DEBUGGING - AUCH FÜR IPAD SICHTBAR
+  const debugMsg1 = `🔍 Event: ${event.type}, Detail: ${event.detail || 'undefined'}, Timestamp: ${event.timeStamp}`;
   console.log('🔍 PWA-EVENT-DEBUG: toggleProgressItem aufgerufen');
   console.log('🔍 Event-Type:', event.type);
   console.log('🔍 Event-Target:', event.target);
   console.log('🔍 Event-Detail:', event.detail);
   console.log('🔍 Event-TimeStamp:', event.timeStamp);
   
+  // LOG AUCH INS DEBUG-PANEL FÜR IPAD
+  if (typeof logToDebugPanel === 'function') {
+    logToDebugPanel(debugMsg1);
+  }
+  
   // VERHINDERE MEHRFACH-AUSFÜHRUNG
   if (event.target.dataset.processing === 'true') {
-    console.log('⚠️ PWA-DEBUG: Event bereits in Bearbeitung, ignoriere');
+    const msg = '⚠️ Event bereits in Bearbeitung, ignoriere';
+    console.log(msg);
+    if (typeof logToDebugPanel === 'function') {
+      logToDebugPanel(msg);
+    }
     return;
   }
   event.target.dataset.processing = 'true';
@@ -3949,8 +3959,12 @@ function toggleProgressItem(studentId, categoryKey, sectionKey, itemKey, event) 
   const currentStatus = progress[categoryKey][sectionKey][itemKey] || 'not_started';
   const nextStatus = getNextStatus(currentStatus);
   
-  // DEBUG LOG FÜR PWA-PROBLEM
-  console.log(`🎯 PWA-Debug: Item "${itemKey}" → Current: "${currentStatus}" → Next: "${nextStatus}"`);
+  // DEBUG LOG FÜR PWA-PROBLEM - AUCH FÜR IPAD
+  const debugMsg2 = `🎯 Item "${itemKey}" → "${currentStatus}" → "${nextStatus}"`;
+  console.log(`🎯 PWA-Debug: ${debugMsg2}`);
+  if (typeof logToDebugPanel === 'function') {
+    logToDebugPanel(debugMsg2);
+  }
   
   progress[categoryKey][sectionKey][itemKey] = nextStatus;
   
@@ -3961,7 +3975,11 @@ function toggleProgressItem(studentId, categoryKey, sectionKey, itemKey, event) 
   const symbol = getStatusSymbol(nextStatus);
   const statusClass = nextStatus !== 'not_started' ? nextStatus : '';
   
+  const debugMsg3 = `🎯 Update → Symbol: "${symbol}" → Class: "${statusClass}"`;
   console.log(`🎯 PWA-Debug: Element Update → Symbol: "${symbol}" → Class: "${statusClass}"`);
+  if (typeof logToDebugPanel === 'function') {
+    logToDebugPanel(debugMsg3);
+  }
   
   element.textContent = symbol;
   element.className = `progress-checkbox ${statusClass}`;
@@ -3972,7 +3990,11 @@ function toggleProgressItem(studentId, categoryKey, sectionKey, itemKey, event) 
   // PROCESSING-FLAG NACH KURZER VERZÖGERUNG ENTFERNEN
   setTimeout(() => {
     event.target.dataset.processing = 'false';
+    const msg = '✅ Event-Processing abgeschlossen';
     console.log('✅ PWA-DEBUG: Event-Processing abgeschlossen');
+    if (typeof logToDebugPanel === 'function') {
+      logToDebugPanel(msg);
+    }
   }, 100);
 }
 
