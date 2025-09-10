@@ -1719,8 +1719,13 @@ function updateCategoryProgress(categoryKey, studentId) {
       } else if (section.items) {
         section.items.forEach(item => {
           const status = categoryProgress[sectionKey] && categoryProgress[sectionKey][item];
-          if (status && status !== 'not_started') {
-            completedItems++;
+          // KORRIGIERTE 3-STUFEN-BERECHNUNG
+          if (status === 'once') {
+            completedItems += 0.33; // 🔴 ROT (/) = 33%
+          } else if (status === 'twice') {
+            completedItems += 0.66; // 🟡 GELB (×) = 66%
+          } else if (status === 'thrice') {
+            completedItems += 1.0;  // 🟢 GRÜN (⊗) = 100%
           }
         });
       }
@@ -1736,7 +1741,7 @@ function updateCategoryProgress(categoryKey, studentId) {
   const progressCount = document.querySelector(`#section-${categoryKey}`).parentElement.querySelector('.progress-count');
   
   if (progressText) progressText.textContent = `${percentage}%`;
-  if (progressCount) progressCount.textContent = `(${completedItems}/${totalItems})`;
+  if (progressCount) progressCount.textContent = `(${Math.round(completedItems * 10) / 10}/${totalItems})`;
 }
 
 // Neuer Fahrschüler Dialog
