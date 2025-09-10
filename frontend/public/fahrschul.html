@@ -4945,6 +4945,103 @@ function showTrainingView() {
       }, 2000);
     }
 
+    // PWA-DEBUG-PANEL FUNKTIONEN
+    let debugTapCount = 0;
+    let debugTapTimer = null;
+
+    function handleDebugActivation() {
+      debugTapCount++;
+      
+      // Reset nach 2 Sekunden
+      if (debugTapTimer) clearTimeout(debugTapTimer);
+      debugTapTimer = setTimeout(() => {
+        debugTapCount = 0;
+      }, 2000);
+      
+      // Nach 5 schnellen Taps: Debug-Panel anzeigen
+      if (debugTapCount >= 5) {
+        debugTapCount = 0;
+        document.getElementById('pwa-debug-panel').style.display = 'block';
+        logToDebugPanel('🔍 Debug-Panel aktiviert');
+        showPWAStatus();
+      }
+    }
+
+    function showPWAStatus() {
+      const appVersion = document.querySelector('meta[name="app-version"]')?.content;
+      const lastUpdated = document.querySelector('meta[name="last-updated"]')?.content;
+      const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+      const isOnline = navigator.onLine;
+      
+      const debugInfo = document.getElementById('debug-info');
+      if (debugInfo) {
+        debugInfo.innerHTML = `
+          <div><strong>App-Version:</strong> ${appVersion}</div>
+          <div><strong>Letzte Änderung:</strong> ${lastUpdated}</div>
+          <div><strong>PWA-Modus:</strong> ${isStandalone ? '✅ Ja' : '❌ Nein'}</div>
+          <div><strong>Online:</strong> ${isOnline ? '✅ Ja' : '❌ Offline'}</div>
+          <div><strong>User-Agent:</strong> ${navigator.userAgent.substring(0, 50)}...</div>
+        `;
+      }
+      
+      logToDebugPanel(`📱 Status: PWA=${isStandalone}, Online=${isOnline}, Version=${appVersion}`);
+      
+      // Cache-Status prüfen
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          logToDebugPanel(`📦 Caches: ${names.length} aktiv (${names.join(', ')})`);
+        });
+      }
+    }
+
+    function fixPWAIssue() {
+      logToDebugPanel('🔧 Cache wird geleert...');
+      
+      // Service Worker deregistrieren
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          registrations.forEach(reg => {
+            reg.unregister();
+            logToDebugPanel('🗑️ Service Worker deregistriert');
+          });
+        });
+      }
+      
+      // Caches löschen
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          Promise.all(names.map(name => caches.delete(name))).then(() => {
+            logToDebugPanel('🗑️ Alle Caches gelöscht');
+          });
+        });
+      }
+      
+      // LocalStorage leeren (optional)
+      const clearStorage = confirm('Auch alle gespeicherten Daten löschen?\n(Schüler und Fortschritte gehen verloren!)');
+      if (clearStorage) {
+        localStorage.clear();
+        sessionStorage.clear();
+        logToDebugPanel('🗑️ Alle Daten gelöscht');
+      }
+      
+      logToDebugPanel('🔄 Seite wird neu geladen...');
+      setTimeout(() => {
+        window.location.reload(true);
+      }, 2000);
+    }
+
+    function logToDebugPanel(message) {
+      const debugLogs = document.getElementById('debug-logs');
+      if (debugLogs) {
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = document.createElement('div');
+        logEntry.textContent = `[${timestamp}] ${message}`;
+        debugLogs.appendChild(logEntry);
+        debugLogs.scrollTop = debugLogs.scrollHeight;
+      }
+      console.log(`[PWA-Debug] ${message}`);
+    }
+
 </script>
 </body>
 </html>
