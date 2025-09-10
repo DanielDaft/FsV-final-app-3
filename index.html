@@ -2973,6 +2973,38 @@ function formatGermanDate(dateString) {
   return date.toLocaleDateString('de-DE');
 }
 
+// ANZAHL BEHANDELTER ITEMS BERECHNEN (ohne Gewichtung - nur zählen)
+function calculateTreatedItems(student) {
+  let treatedItems = 0;
+
+  const progress = StorageManager.getProgressForStudent(student.id);
+  
+  Object.keys(TRAINING_CATEGORIES).forEach(categoryKey => {
+    const category = TRAINING_CATEGORIES[categoryKey];
+    const categoryProgress = progress[categoryKey] || {};
+
+    function countTreatedItems(sections) {
+      Object.entries(sections).forEach(([sectionKey, section]) => {
+        if (section.sections) {
+          countTreatedItems(section.sections);
+        } else if (section.items) {
+          section.items.forEach(item => {
+            const status = categoryProgress[sectionKey] && categoryProgress[sectionKey][item];
+            // EINFACHE ZÄHLUNG: Wurde das Item überhaupt behandelt?
+            if (status === 'once' || status === 'twice' || status === 'thrice') {
+              treatedItems++; // +1 für jedes behandelte Item, egal welche Stufe
+            }
+          });
+        }
+      });
+    }
+
+    countTreatedItems(category.sections);
+  });
+
+  return treatedItems; // Einfache Anzahl
+}
+
 // TATSÄCHLICH ABGESCHLOSSENE ITEMS BERECHNEN (mit 3-Stufen-System)
 function calculateActualCompletedItems(student) {
   let completedItems = 0;
