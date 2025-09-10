@@ -1189,7 +1189,7 @@ function renderSpecialFahrtenHeader(studentId, category, categoryKey, percentage
     <div class="training-progress">
       <div class="progress-circle"></div>
       <div class="progress-text">${percentage}%</div>
-      <div class="progress-count">(${Math.round(completedItems * 10) / 10}/${totalItems})</div>
+      <div class="progress-count">(${treatedItems}/${totalItems})</div>
       <div class="dropdown-arrow">▼</div>
     </div>
   `;
