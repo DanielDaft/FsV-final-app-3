@@ -409,6 +409,42 @@ function formatGermanDate(dateString) {
   return date.toLocaleDateString('de-DE');
 }
 
+// TATSÄCHLICH ABGESCHLOSSENE ITEMS BERECHNEN (mit 3-Stufen-System)
+function calculateActualCompletedItems(student) {
+  let completedItems = 0;
+
+  const progress = StorageManager.getProgressForStudent(student.id);
+  
+  Object.keys(TRAINING_CATEGORIES).forEach(categoryKey => {
+    const category = TRAINING_CATEGORIES[categoryKey];
+    const categoryProgress = progress[categoryKey] || {};
+
+    function countCompletedItems(sections) {
+      Object.entries(sections).forEach(([sectionKey, section]) => {
+        if (section.sections) {
+          countCompletedItems(section.sections);
+        } else if (section.items) {
+          section.items.forEach(item => {
+            const status = categoryProgress[sectionKey] && categoryProgress[sectionKey][item];
+            // KORRIGIERTE 3-STUFEN-BERECHNUNG
+            if (status === 'once') {
+              completedItems += 0.33; // 🔴 ROT (/) = 33%
+            } else if (status === 'twice') {
+              completedItems += 0.66; // 🟡 GELB (×) = 66%
+            } else if (status === 'thrice') {
+              completedItems += 1.0;  // 🟢 GRÜN (⊗) = 100%
+            }
+          });
+        }
+      });
+    }
+
+    countCompletedItems(category.sections);
+  });
+
+  return Math.round(completedItems * 10) / 10; // Auf 1 Dezimalstelle runden
+}
+
 // GESAMTFORTSCHRITT BERECHNEN - KORRIGIERT FÜR 3-STUFEN-SYSTEM
 function calculateOverallProgress(student) {
   let totalItems = 0;
