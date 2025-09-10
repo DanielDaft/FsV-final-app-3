@@ -10,18 +10,21 @@ const FILES_TO_CACHE = [
   OFFLINE_URL
 ];
 
-// Installation
+// Installation - ERZWINGE NEUE VERSION
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing Fahrschul-App...');
+  console.log('[SW] Installing Fahrschul-App v2.0 with 3-stage calculation fix...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[SW] Caching app shell');
-        return cache.addAll(FILES_TO_CACHE);
+        console.log('[SW] Caching app shell with timestamp to force refresh');
+        // Cache-Buster: Füge Timestamp hinzu um Caching-Probleme zu vermeiden
+        const timestamp = Date.now();
+        const filesToCache = FILES_TO_CACHE.map(url => `${url}?v=${timestamp}`);
+        return cache.addAll(filesToCache);
       })
       .then(() => {
-        console.log('[SW] Installation complete');
-        return self.skipWaiting();
+        console.log('[SW] Installation complete, skipping waiting...');
+        return self.skipWaiting(); // Aktiviere sofort
       })
       .catch((error) => {
         console.error('[SW] Installation failed:', error);
