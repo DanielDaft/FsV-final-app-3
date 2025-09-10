@@ -4714,6 +4714,64 @@ function showTrainingView() {
   }
 }
 
+  // PWA Service Worker registrieren (iOS & Android) - NUKLEAR VERSION
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then((registration) => {
+        console.log('✅ PWA: NUKLEAR Service Worker registered', registration);
+        
+        // FORCE UPDATE FUNKTION GLOBAL VERFÜGBAR MACHEN
+        window.forceAppUpdate = function() {
+          if (confirm('App komplett neu laden und alle Caches löschen?\n(Löst PWA-Berechnungsprobleme definitiv!)')) {
+            // Alle Service Worker löschen
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+              console.log('🗑️ Lösche alle Service Worker...');
+              registrations.forEach(registration => registration.unregister());
+            }).then(() => {
+              // Alle Caches löschen
+              if ('caches' in window) {
+                return caches.keys().then(names => {
+                  console.log('🗑️ Lösche alle Caches:', names);
+                  return Promise.all(names.map(name => caches.delete(name)));
+                });
+              }
+            }).then(() => {
+              // Local Storage löschen
+              localStorage.clear();
+              console.log('🗑️ Local Storage gelöscht');
+              
+              // Hard Reload
+              console.log('🔄 Erzwinge kompletten Neustart...');
+              window.location.reload(true);
+            });
+          }
+        };
+        
+        // PRÜFE AUF UPDATES ALLE 5 SEKUNDEN
+        setInterval(() => {
+          registration.update().then(() => {
+            console.log('🔄 Service Worker Update-Check durchgeführt');
+          });
+        }, 5000);
+        
+        // MESSAGE LISTENER FÜR SERVICE WORKER
+        navigator.serviceWorker.addEventListener('message', event => {
+          if (event.data && event.data.type === 'CACHE_UPDATED') {
+            console.log('✅ Cache Update erhalten:', event.data.message);
+            if (confirm('Neue App-Version verfügbar!\n' + event.data.message + '\n\nJetzt neu laden?')) {
+              window.location.reload(true);
+            }
+          }
+        });
+        
+        // iOS Installation Prompt nach App-Start
+        setTimeout(() => showIOSInstallPrompt(), 5000);
+      })
+      .catch((error) => {
+        console.log('❌ PWA: Service Worker registration failed', error);
+      });
+  }
+
 </script>
 </body>
 </html>
