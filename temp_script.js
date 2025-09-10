@@ -409,10 +409,14 @@ function formatGermanDate(dateString) {
   return date.toLocaleDateString('de-DE');
 }
 
-function calculateOverallProgress(student) {
+// GESAMTFORTSCHRITT BERECHNEN - KORRIGIERT FÜR 3-STUFEN-SYSTEM
+function calculateOverallProgress(students) {
+  if (!Array.isArray(students) || students.length === 0) return 0;
+
   let totalItems = 0;
   let completedItems = 0;
 
+  // Alle Kategorien durchgehen und Gesamtitems zählen
   Object.keys(TRAINING_CATEGORIES).forEach(categoryKey => {
     const category = TRAINING_CATEGORIES[categoryKey];
     totalItems += countTotalItems(category.sections);
@@ -431,8 +435,13 @@ function calculateOverallProgress(student) {
         } else if (section.items) {
           section.items.forEach(item => {
             const status = categoryProgress[sectionKey] && categoryProgress[sectionKey][item];
-            if (status && status !== 'not_started') {
-              completedItems++;
+            // KORRIGIERTE 3-STUFEN-BERECHNUNG
+            if (status === 'once') {
+              completedItems += 0.33; // 🔴 ROT (/) = 33%
+            } else if (status === 'twice') {
+              completedItems += 0.66; // 🟡 GELB (×) = 66%
+            } else if (status === 'thrice') {
+              completedItems += 1.0;  // 🟢 GRÜN (⊗) = 100%
             }
           });
         }
