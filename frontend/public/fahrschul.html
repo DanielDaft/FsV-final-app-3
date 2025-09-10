@@ -4714,68 +4714,40 @@ function showTrainingView() {
   }
 }
 
-  // PWA Service Worker registrieren (iOS & Android) - NUKLEAR VERSION
+  // PWA Service Worker - DEAKTIVIERT UM CACHING-PROBLEME ZU VERMEIDEN
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .then((registration) => {
-        console.log('✅ PWA: NUKLEAR Service Worker registered', registration);
-        
-        // FORCE UPDATE FUNKTION GLOBAL VERFÜGBAR MACHEN
-        window.forceAppUpdate = function() {
-          if (confirm('App komplett neu laden und alle Caches löschen?\n(Löst PWA-Berechnungsprobleme definitiv!)')) {
-            // Alle Service Worker löschen
-            navigator.serviceWorker.getRegistrations().then(registrations => {
-              console.log('🗑️ Lösche alle Service Worker...');
-              registrations.forEach(registration => registration.unregister());
-            }).then(() => {
-              // Alle Caches löschen
-              if ('caches' in window) {
-                return caches.keys().then(names => {
-                  console.log('🗑️ Lösche alle Caches:', names);
-                  return Promise.all(names.map(name => caches.delete(name)));
-                });
-              }
-            }).then(() => {
-              // Local Storage löschen
-              localStorage.clear();
-              console.log('🗑️ Local Storage gelöscht');
-              
-              // Hard Reload
-              console.log('🔄 Erzwinge kompletten Neustart...');
-              window.location.reload(true);
-            });
-          }
-        };
-        
-        // PRÜFE AUF UPDATES ALLE 5 SEKUNDEN
-        setInterval(() => {
-          registration.update().then(() => {
-            console.log('🔄 Service Worker Update-Check durchgeführt');
-          });
-        }, 5000);
-        
-        // MESSAGE LISTENER FÜR SERVICE WORKER
-        navigator.serviceWorker.addEventListener('message', event => {
-          if (event.data && event.data.type === 'CACHE_UPDATED') {
-            console.log('✅ Cache Update erhalten:', event.data.message);
-            if (confirm('Neue App-Version verfügbar!\n' + event.data.message + '\n\nJetzt neu laden?')) {
-              window.location.reload(true);
-            }
-          }
-        });
-        
-        // iOS Installation Prompt nach App-Start
-        setTimeout(() => {
-          if (typeof showIOSInstallPrompt === 'function') {
-            showIOSInstallPrompt();
-          } else {
-            console.log('📱 iOS Install Prompt Funktion nicht verfügbar');
-          }
-        }, 5000);
-      })
-      .catch((error) => {
-        console.log('❌ PWA: Service Worker registration failed', error);
+    // LÖSCHE ALLE BESTEHENDEN SERVICE WORKER SOFORT
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+      registrations.forEach(registration => {
+        console.log('🗑️ Deaktiviere Service Worker:', registration.scope);
+        registration.unregister();
       });
+    });
+    
+    // LÖSCHE ALLE CACHES SOFORT
+    if ('caches' in window) {
+      caches.keys().then(names => {
+        names.forEach(name => {
+          console.log('🗑️ Lösche Cache:', name);
+          caches.delete(name);
+        });
+      });
+    }
+    
+    console.log('⚠️ PWA Service Worker DEAKTIVIERT - App läuft ohne Caching');
+    
+    // MANUELLE UPDATE-FUNKTION OHNE SERVICE WORKER
+    window.forceAppUpdate = function() {
+      if (confirm('App neu laden?\n(Ohne Service Worker - lädt immer die neueste Version)')) {
+        // Local Storage optional löschen
+        if (confirm('Auch alle Schülerdaten löschen?')) {
+          localStorage.clear();
+        }
+        window.location.reload(true);
+      }
+    };
+  } else {
+    console.log('⚠️ Service Worker nicht unterstützt - App läuft ohne Caching');
   }
 
 </script>
