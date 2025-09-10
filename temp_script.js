@@ -836,7 +836,8 @@ function renderTrainingProgress(student) {
     const progress = StorageManager.getProgressForStudent(student.id);
     const categoryProgress = progress[key] || {};
     
-    let completedItems = 0;
+    let completedItems = 0; // Gewichtete Punkte für Prozentberechnung  
+    let treatedItems = 0;   // Einfache Anzahl behandelter Items für Klammer-Anzeige
     const totalItems = countTotalItems(category.sections);
 
     function countCompletedItems(sections) {
@@ -849,10 +850,13 @@ function renderTrainingProgress(student) {
             // KORRIGIERTE 3-STUFEN-BERECHNUNG
             if (status === 'once') {
               completedItems += 0.33; // 🔴 ROT (/) = 33%
+              treatedItems++; // +1 behandeltes Item
             } else if (status === 'twice') {
               completedItems += 0.66; // 🟡 GELB (×) = 66%
+              treatedItems++; // +1 behandeltes Item
             } else if (status === 'thrice') {
               completedItems += 1.0;  // 🟢 GRÜN (⊗) = 100%
+              treatedItems++; // +1 behandeltes Item
             }
           });
         }
@@ -862,7 +866,6 @@ function renderTrainingProgress(student) {
     countCompletedItems(category.sections);
 
     const percentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
-    const treatedItems = Math.round(completedItems * 10) / 10;
     const expanded = key === 'grundstufe';
 
     html += `
