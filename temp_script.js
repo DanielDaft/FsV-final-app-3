@@ -1338,13 +1338,13 @@ function updateCategoryHeaderOnly(studentId, categoryKey) {
   
   let headerHtml;
   if (categoryKey === 'uberlandfahrten') {
-    headerHtml = renderSpecialFahrtenHeader(studentId, category, categoryKey, percentage, completedItems, totalItems, 5);
+    headerHtml = renderSpecialFahrtenHeader(studentId, category, categoryKey, percentage, completedItems, totalItems, 5, treatedItems);
   } else if (categoryKey === 'autobahn') {
-    headerHtml = renderSpecialFahrtenHeader(studentId, category, categoryKey, percentage, completedItems, totalItems, 4);
+    headerHtml = renderSpecialFahrtenHeader(studentId, category, categoryKey, percentage, completedItems, totalItems, 4, treatedItems);
   } else if (categoryKey === 'dammerung_dunkelheit') {
-    headerHtml = renderSpecialFahrtenHeader(studentId, category, categoryKey, percentage, completedItems, totalItems, 3);
+    headerHtml = renderSpecialFahrtenHeader(studentId, category, categoryKey, percentage, completedItems, totalItems, 3, treatedItems);
   } else {
-    headerHtml = renderCategoryHeaderWithCircles(studentId, category, categoryKey, percentage, completedItems, totalItems);
+    headerHtml = renderCategoryHeaderWithCircles(studentId, category, categoryKey, percentage, completedItems, totalItems, treatedItems);
   }
   
   const headerElement = document.querySelector(`.training-header.${categoryKey}`);
