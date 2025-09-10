@@ -3894,6 +3894,18 @@ function toggleTrainingSection(sectionId) {
   }
 }
 
+// TOUCH-EVENT-HANDLER FÜR PWA-PROBLEME
+function handleTouchEnd(studentId, categoryKey, sectionKey, itemKey, event) {
+  console.log('👆 PWA-TOUCH-DEBUG: Touch-Event erkannt');
+  
+  // Verhindere Click-Event nach Touch
+  event.preventDefault();
+  event.stopPropagation();
+  
+  // Verwende die gleiche Logik wie Click
+  toggleProgressItem(studentId, categoryKey, sectionKey, itemKey, event);
+}
+
 function toggleProgressItem(studentId, categoryKey, sectionKey, itemKey, event) {
   // DETAILLIERTES PWA-DEBUGGING
   console.log('🔍 PWA-EVENT-DEBUG: toggleProgressItem aufgerufen');
