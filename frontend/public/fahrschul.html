@@ -3894,6 +3894,20 @@ function toggleTrainingSection(sectionId) {
 }
 
 function toggleProgressItem(studentId, categoryKey, sectionKey, itemKey, event) {
+  // DETAILLIERTES PWA-DEBUGGING
+  console.log('🔍 PWA-EVENT-DEBUG: toggleProgressItem aufgerufen');
+  console.log('🔍 Event-Type:', event.type);
+  console.log('🔍 Event-Target:', event.target);
+  console.log('🔍 Event-Detail:', event.detail);
+  console.log('🔍 Event-TimeStamp:', event.timeStamp);
+  
+  // VERHINDERE MEHRFACH-AUSFÜHRUNG
+  if (event.target.dataset.processing === 'true') {
+    console.log('⚠️ PWA-DEBUG: Event bereits in Bearbeitung, ignoriere');
+    return;
+  }
+  event.target.dataset.processing = 'true';
+  
   const progress = StorageManager.getProgressForStudent(studentId);
   
   if (!progress[categoryKey]) progress[categoryKey] = {};
@@ -3921,6 +3935,12 @@ function toggleProgressItem(studentId, categoryKey, sectionKey, itemKey, event) 
 
   // Kategorie-Fortschritt aktualisieren
   updateCategoryProgress(categoryKey, studentId);
+  
+  // PROCESSING-FLAG NACH KURZER VERZÖGERUNG ENTFERNEN
+  setTimeout(() => {
+    event.target.dataset.processing = 'false';
+    console.log('✅ PWA-DEBUG: Event-Processing abgeschlossen');
+  }, 100);
 }
 
 function updateCategoryProgress(categoryKey, studentId) {
