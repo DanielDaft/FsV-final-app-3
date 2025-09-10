@@ -1196,8 +1196,8 @@ function renderSpecialFahrtenHeader(studentId, category, categoryKey, percentage
 }
 
 // SPEZIELLE HEADER FÜR ÜBERLANDFAHRTEN MIT BLAUEN UND GRÜNEN KREISEN (für Rückwärtskompatibilität)
-function renderUberlandfahrtenHeader(studentId, category, categoryKey, percentage, completedItems, totalItems) {
-  return renderSpecialFahrtenHeader(studentId, category, categoryKey, percentage, completedItems, totalItems, 5);
+function renderUberlandfahrtenHeader(studentId, category, categoryKey, percentage, completedItems, totalItems, treatedItems) {
+  return renderSpecialFahrtenHeader(studentId, category, categoryKey, percentage, completedItems, totalItems, 5, treatedItems);
 }
 
 function getFillLevelClass(fillLevel) {
