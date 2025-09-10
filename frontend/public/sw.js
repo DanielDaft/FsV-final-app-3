@@ -1,126 +1,124 @@
-// Deutsche Fahrschul-App Service Worker - NUKLEAR VERSION FÜR CACHE-FIX
-const CACHE_NAME = 'fahrschul-app-v3.0-nuclear-fix-' + Date.now(); // EINDEUTIGE VERSION
-const OFFLINE_URL = '/FsV-final-app/frontend/public/offline.html';
+// Deutsche Fahrschul-App Service Worker - OFFLINE + KORREKTE BERECHNUNGEN
+const APP_VERSION = '3.1-corrected-calculations';
+const CACHE_NAME = `fahrschul-app-${APP_VERSION}`;
 
-// ALLE DATEIEN MIT CACHE-BUSTER TIMESTAMPS
-const FILES_TO_CACHE = [
-  '/FsV-final-app/',
-  '/FsV-final-app/index.html',
-  '/FsV-final-app/frontend/public/manifest.json',
-  '/FsV-final-app/frontend/public/fahrschul.html',
-  OFFLINE_URL
-].map(url => `${url}?cb=${Date.now()}`); // CACHE-BUSTER FÜR ALLE DATEIEN
+// KRITISCHE DATEIEN FÜR OFFLINE-NUTZUNG
+const CRITICAL_FILES = [
+  'fahrschul.html',
+  'manifest.json'
+];
 
-// NUKLEAR INSTALLATION - LÖSCHE ALLES
+// INSTALLATION - LADE NUR AKTUELLE VERSION
 self.addEventListener('install', (event) => {
-  console.log('[SW] NUKLEAR INSTALLATION - LÖSCHE ALLE CACHES!');
+  console.log(`[SW] Installiere ${APP_VERSION} für Offline-Nutzung`);
+  
   event.waitUntil(
-    Promise.all([
-      // LÖSCHE ALLE BESTEHENDEN CACHES SOFORT
-      caches.keys().then(cacheNames => {
-        console.log('[SW] Lösche alle bestehenden Caches:', cacheNames);
-        return Promise.all(
-          cacheNames.map(cacheName => {
-            console.log('[SW] Lösche Cache:', cacheName);
-            return caches.delete(cacheName);
-          })
-        );
-      }),
-      // ERSTELLE NEUEN CACHE
-      caches.open(CACHE_NAME).then(cache => {
-        console.log('[SW] Erstelle neuen Cache mit aktuellen Dateien');
-        return cache.addAll(FILES_TO_CACHE);
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        console.log('[SW] Cache kritische Dateien für Offline-Nutzung');
+        return cache.addAll(CRITICAL_FILES);
       })
-    ]).then(() => {
-      console.log('[SW] NUKLEAR INSTALLATION ABGESCHLOSSEN - ÜBERNEHME SOFORT!');
-      return self.skipWaiting(); // SOFORT AKTIVIEREN
-    }).catch(error => {
-      console.error('[SW] NUKLEAR INSTALLATION FEHLGESCHLAGEN:', error);
-    })
+      .then(() => {
+        console.log('[SW] Installation abgeschlossen, überspringe Wartephase');
+        return self.skipWaiting();
+      })
+      .catch(error => {
+        console.error('[SW] Installation fehlgeschlagen:', error);
+      })
   );
 });
 
-// NUKLEAR AKTIVIERUNG - ÜBERNIMM ALLE CLIENTS SOFORT
+// AKTIVIERUNG - LÖSCHE ALTE VERSIONEN
 self.addEventListener('activate', (event) => {
-  console.log('[SW] NUKLEAR AKTIVIERUNG - ÜBERNEHME ALLE CLIENTS!');
+  console.log(`[SW] Aktiviere ${APP_VERSION}`);
+  
   event.waitUntil(
     Promise.all([
-      // LÖSCHE ALLE CACHES ERNEUT ZUR SICHERHEIT
+      // Lösche alte Cache-Versionen
       caches.keys().then(cacheNames => {
         return Promise.all(
           cacheNames.map(cacheName => {
             if (cacheName !== CACHE_NAME) {
-              console.log('[SW] Lösche veralteten Cache:', cacheName);
+              console.log('[SW] Lösche alte Cache-Version:', cacheName);
               return caches.delete(cacheName);
             }
           })
         );
       }),
-      // ÜBERNIMM ALLE OFFENEN TABS SOFORT
+      // Übernimm alle Clients
       self.clients.claim()
     ]).then(() => {
-      console.log('[SW] NUKLEAR AKTIVIERUNG ABGESCHLOSSEN!');
-      // BENACHRICHTIGE ALLE CLIENTS ÜBER UPDATE
-      return self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-          client.postMessage({
-            type: 'CACHE_UPDATED',
-            message: 'Neue App-Version geladen! 3-Stufen-Berechnung ist jetzt korrekt.'
-          });
-        });
-      });
+      console.log(`[SW] ${APP_VERSION} aktiv - Offline-Modus bereit`);
     })
   );
 });
 
-// NUKLEAR FETCH - IMMER NEUESTE VERSION BEVORZUGEN
+// FETCH HANDLER - INTELLIGENT FÜR OFFLINE
 self.addEventListener('fetch', (event) => {
-  // Nur GET requests verarbeiten
+  // Nur GET-Requests verarbeiten
   if (event.request.method !== 'GET') return;
   
   // Ignoriere spezielle URLs
   if (event.request.url.includes('chrome-extension://') || 
       event.request.url.includes('moz-extension://')) return;
 
-  event.respondWith(
-    // NETWORK FIRST STRATEGY - BEVORZUGE NETZWERK ÜBER CACHE
-    fetch(event.request.clone())
-      .then(response => {
-        // Wenn Netzwerk erfolgreich, cache die neue Version
-        if (response && response.status === 200 && response.type === 'basic') {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseClone);
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        // Nur wenn Netzwerk fehlschlägt, verwende Cache
-        console.log('[SW] Netzwerk fehlgeschlagen, verwende Cache für:', event.request.url);
-        return caches.match(event.request).then(cachedResponse => {
-          if (cachedResponse) {
+  const url = new URL(event.request.url);
+  const isHTMLFile = url.pathname.endsWith('.html') || url.pathname.endsWith('/');
+  
+  if (isHTMLFile) {
+    // FÜR HTML-DATEIEN: STALE-WHILE-REVALIDATE
+    event.respondWith(
+      caches.open(CACHE_NAME).then(cache => {
+        return cache.match(event.request).then(cachedResponse => {
+          // Versuche gleichzeitig ein Update zu laden
+          const fetchPromise = fetch(event.request).then(networkResponse => {
+            if (networkResponse && networkResponse.status === 200) {
+              // Update den Cache im Hintergrund
+              cache.put(event.request, networkResponse.clone());
+            }
+            return networkResponse;
+          }).catch(() => {
+            // Netzwerk fehlgeschlagen, verwende Cache
             return cachedResponse;
-          }
-          // Fallback für Navigation
-          if (event.request.destination === 'document') {
-            return caches.match(OFFLINE_URL);
-          }
+          });
+          
+          // Gib cached Version sofort zurück, update im Hintergrund
+          return cachedResponse || fetchPromise;
         });
       })
-  );
+    );
+  } else {
+    // FÜR ANDERE DATEIEN: CACHE FIRST (bessere Offline-Performance)
+    event.respondWith(
+      caches.match(event.request).then(cachedResponse => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        
+        return fetch(event.request).then(networkResponse => {
+          if (networkResponse && networkResponse.status === 200) {
+            // Cache für zukünftige Offline-Nutzung
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, networkResponse.clone());
+            });
+          }
+          return networkResponse;
+        });
+      })
+    );
+  }
 });
 
-// MESSAGE HANDLER FÜR FORCE-UPDATE
+// MESSAGE HANDLER - FÜR FORCE-UPDATES
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'FORCE_UPDATE') {
-    console.log('[SW] FORCE UPDATE angefordert!');
-    // Lösche alle Caches und lade neu
-    caches.keys().then(cacheNames => {
-      return Promise.all(cacheNames.map(name => caches.delete(name)));
-    }).then(() => {
-      console.log('[SW] Alle Caches gelöscht, aktiviere Reload');
-      event.ports[0].postMessage({ success: true });
-    });
+  if (event.data && event.data.action === 'skipWaiting') {
+    console.log('[SW] SkipWaiting angefordert');
+    self.skipWaiting();
   }
+});
+
+// SYNC EVENT - FÜR ZUKÜNFTIGE FEATURES
+self.addEventListener('sync', (event) => {
+  console.log('[SW] Background Sync:', event.tag);
+  // Hier könnten in Zukunft Daten synchronisiert werden
 });
