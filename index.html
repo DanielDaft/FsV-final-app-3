@@ -4438,7 +4438,7 @@ function updateCategoryProgress(categoryKey, studentId) {
   const progressCount = document.querySelector(`#section-${categoryKey}`).parentElement.querySelector('.progress-count');
   
   if (progressText) progressText.textContent = `${percentage}%`;
-  if (progressCount) progressCount.textContent = `(${Math.round(completedItems * 10) / 10}/${totalItems})`;
+  if (progressCount) progressCount.textContent = `(${treatedItems}/${totalItems})`;
 }
 
 // Neuer Fahrschüler Dialog
