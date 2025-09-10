@@ -4793,6 +4793,61 @@ function showTrainingView() {
     console.log('⚠️ Service Worker nicht unterstützt');
   }
 
+  // AGGRESSIVE CACHE UND STATUS RESET FÜR PWA-PROBLEME
+  window.fixPWACalculation = function() {
+    if (confirm('PWA-Berechnungsproblem beheben?\n\n• Löscht alle Caches\n• Setzt alle Fortschritte zurück\n• Lädt App neu\n\nDies sollte das Problem mit falschen Berechnungen lösen.')) {
+      console.log('🔧 PWA-Fix gestartet...');
+      
+      // 1. Alle Service Worker deregistrieren
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        registrations.forEach(reg => reg.unregister());
+        console.log('🗑️ Service Worker deregistriert');
+      });
+      
+      // 2. Alle Caches löschen
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          Promise.all(names.map(name => caches.delete(name))).then(() => {
+            console.log('🗑️ Alle Caches gelöscht');
+          });
+        });
+      }
+      
+      // 3. Local Storage komplett leeren
+      localStorage.clear();
+      console.log('🗑️ LocalStorage geleert');
+      
+      // 4. Session Storage leeren
+      sessionStorage.clear();
+      console.log('🗑️ SessionStorage geleert');
+      
+      // 5. Hard Reload
+      setTimeout(() => {
+        console.log('🔄 Erzwinge kompletten Neustart...');
+        window.location.href = window.location.href + '?pwa-fix=' + Date.now();
+      }, 1000);
+    }
+  };
+  
+  // EINFACHER CACHE-CHECK
+  window.checkPWAStatus = function() {
+    const appVersion = document.querySelector('meta[name="app-version"]')?.content;
+    console.log('📱 App-Version:', appVersion);
+    
+    if ('caches' in window) {
+      caches.keys().then(names => {
+        console.log('📦 Aktive Caches:', names);
+        alert(`PWA-Status:\n\nApp-Version: ${appVersion}\nAktive Caches: ${names.length}\n\nCaches:\n${names.join('\n')}`);
+      });
+    }
+    
+    const studentId = 'daniel-daft-001';
+    const progress = StorageManager.getProgressForStudent(studentId);
+    console.log('💾 Gespeicherte Fortschritte:', progress);
+  };
+
+  console.log('✅ PWA-Debug-Funktionen verfügbar: fixPWACalculation(), checkPWAStatus()');
+
 </script>
 </body>
 </html>
