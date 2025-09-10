@@ -3902,6 +3902,9 @@ function toggleProgressItem(studentId, categoryKey, sectionKey, itemKey, event) 
   const currentStatus = progress[categoryKey][sectionKey][itemKey] || 'not_started';
   const nextStatus = getNextStatus(currentStatus);
   
+  // DEBUG LOG FÜR PWA-PROBLEM
+  console.log(`🎯 PWA-Debug: Item "${itemKey}" → Current: "${currentStatus}" → Next: "${nextStatus}"`);
+  
   progress[categoryKey][sectionKey][itemKey] = nextStatus;
   
   StorageManager.saveProgressForStudent(studentId, progress);
@@ -3910,6 +3913,8 @@ function toggleProgressItem(studentId, categoryKey, sectionKey, itemKey, event) 
   const element = event.target;
   const symbol = getStatusSymbol(nextStatus);
   const statusClass = nextStatus !== 'not_started' ? nextStatus : '';
+  
+  console.log(`🎯 PWA-Debug: Element Update → Symbol: "${symbol}" → Class: "${statusClass}"`);
   
   element.textContent = symbol;
   element.className = `progress-checkbox ${statusClass}`;
