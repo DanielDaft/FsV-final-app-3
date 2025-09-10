@@ -5008,11 +5008,37 @@ function initMobileLayoutObserver() {
 document.addEventListener('DOMContentLoaded', function() {
   console.log('📱 DOM geladen, starte professionelle App nach Ihren Bildern...');
   
-  // PWA Service Worker registrieren (iOS & Android)
+  // PWA Service Worker registrieren (iOS & Android) - MIT UPDATE-ERKENNUNG
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('frontend/public/sw.js')
       .then((registration) => {
         console.log('✅ PWA: Service Worker registered', registration);
+        
+        // Prüfe auf Updates
+        registration.addEventListener('updatefound', () => {
+          console.log('🔄 PWA: Update gefunden!');
+          const newWorker = registration.installing;
+          
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // Neue Version ist verfügbar
+              console.log('✅ PWA: Neue Version installiert - Cache wird geleert');
+              
+              // App sofort neu laden um neue Version zu aktivieren
+              if (confirm('Neue App-Version verfügbar! Jetzt aktualisieren?\n(Behebt Berechnungsprobleme)')) {
+                // Lösche lokalen Storage falls nötig
+                if ('caches' in window) {
+                  caches.keys().then(names => {
+                    names.forEach(name => caches.delete(name));
+                  });
+                }
+                
+                // Force reload
+                window.location.reload(true);
+              }
+            }
+          });
+        });
         
         // iOS Installation Prompt nach App-Start
         setTimeout(() => showIOSInstallPrompt(), 5000);
