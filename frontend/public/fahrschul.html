@@ -2674,7 +2674,23 @@ function renderStudentList() {
   students.forEach(student => {
     const progress = calculateOverallProgress(student);
     const totalItems = Object.values(TRAINING_CATEGORIES).reduce((sum, cat) => sum + countTotalItems(cat.sections), 0);
-    const completedItems = Math.round((progress / 100) * totalItems);
+    
+    // EINFACHE ZÄHLUNG: Wieviele Items wurden behandelt (ohne Gewichtung)
+    let treatedItems = 0;
+    const progressData = StorageManager.getProgressForStudent(student.id);
+    Object.keys(TRAINING_CATEGORIES).forEach(categoryKey => {
+      const categoryProgress = progressData[categoryKey] || {};
+      Object.entries(TRAINING_CATEGORIES[categoryKey].sections).forEach(([sectionKey, section]) => {
+        if (section.items) {
+          section.items.forEach(item => {
+            const status = categoryProgress[sectionKey] && categoryProgress[sectionKey][item];
+            if (status === 'once' || status === 'twice' || status === 'thrice') {
+              treatedItems++; // +1 für jedes behandelte Item, egal welche Stufe
+            }
+          });
+        }
+      });
+    });
 
     html += `
       <div class="student-card" onclick="openStudentDetail('${student.id}')">
