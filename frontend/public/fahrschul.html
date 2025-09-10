@@ -4969,28 +4969,22 @@ function showTrainingView() {
       }, 2000);
     }
 
-    // PWA-DEBUG-PANEL FUNKTIONEN
-    let debugTapCount = 0;
-    let debugTapTimer = null;
-
-    function handleDebugActivation() {
-      debugTapCount++;
-      
-      // Reset nach 2 Sekunden
-      if (debugTapTimer) clearTimeout(debugTapTimer);
-      debugTapTimer = setTimeout(() => {
-        debugTapCount = 0;
-      }, 2000);
-      
-      // Nach 5 schnellen Taps: Debug-Panel anzeigen
-      if (debugTapCount >= 5) {
-        debugTapCount = 0;
-        document.getElementById('pwa-debug-panel').style.display = 'block';
-        logToDebugPanel('🔍 Debug-Panel aktiviert');
-        showPWAStatus();
+    // EINFACHE DEBUG-PANEL TOGGLE-FUNKTION FÜR IPAD
+    function toggleDebugPanel() {
+      const panel = document.getElementById('pwa-debug-panel');
+      if (panel) {
+        if (panel.style.display === 'none' || panel.style.display === '') {
+          panel.style.display = 'block';
+          logToDebugPanel('🔍 Debug-Panel geöffnet');
+          showPWAStatus(); // Automatisch Status anzeigen
+        } else {
+          panel.style.display = 'none';
+          logToDebugPanel('🔍 Debug-Panel geschlossen');
+        }
       }
     }
 
+    // PWA-DEBUG-PANEL FUNKTIONEN (VEREINFACHT)
     function showPWAStatus() {
       const appVersion = document.querySelector('meta[name="app-version"]')?.content;
       const lastUpdated = document.querySelector('meta[name="last-updated"]')?.content;
