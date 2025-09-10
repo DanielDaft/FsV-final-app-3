@@ -2687,7 +2687,8 @@ function renderStudentList() {
   
   let html = `
     <div class="main-header">
-      <h1>FsV</h1>
+      <span class="app-title">FsV</span>
+        <button id="big-debug-btn" onclick="toggleDebugPanel()" style="background: red; color: white; border: 2px solid white; border-radius: 5px; padding: 10px 15px; font-size: 14px; font-weight: bold; margin-left: 20px;">🔍 DEBUG</button>
       <button class="btn-primary" onclick="showNewStudentDialog()">
         <span>+</span> Neuer Schüler
       </button>
