@@ -871,10 +871,10 @@ function renderTrainingProgress(student) {
     html += `
       <div class="training-section">
         <div class="training-header ${key}" onclick="toggleTrainingSection('${key}')">
-          ${(key === 'grundstufe' || key === 'aufbaustufe' || key === 'leistungsstufe' || key === 'grundfahraufgaben') ? renderCategoryHeaderWithCircles(student.id, category, key, percentage, completedItems, totalItems) : 
-            (key === 'uberlandfahrten') ? renderSpecialFahrtenHeader(student.id, category, key, percentage, completedItems, totalItems, 5) :
-            (key === 'autobahn') ? renderSpecialFahrtenHeader(student.id, category, key, percentage, completedItems, totalItems, 4) :
-            (key === 'dammerung_dunkelheit') ? renderSpecialFahrtenHeader(student.id, category, key, percentage, completedItems, totalItems, 3) : `
+          ${(key === 'grundstufe' || key === 'aufbaustufe' || key === 'leistungsstufe' || key === 'grundfahraufgaben') ? renderCategoryHeaderWithCircles(student.id, category, key, percentage, completedItems, totalItems, treatedItems) : 
+            (key === 'uberlandfahrten') ? renderSpecialFahrtenHeader(student.id, category, key, percentage, completedItems, totalItems, 5, treatedItems) :
+            (key === 'autobahn') ? renderSpecialFahrtenHeader(student.id, category, key, percentage, completedItems, totalItems, 4, treatedItems) :
+            (key === 'dammerung_dunkelheit') ? renderSpecialFahrtenHeader(student.id, category, key, percentage, completedItems, totalItems, 3, treatedItems) : `
             <div class="training-header-content">
               <div class="training-info">
                 <h3>${category.name}</h3>
