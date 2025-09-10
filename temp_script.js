@@ -487,7 +487,7 @@ function renderStudentList() {
   students.forEach(student => {
     const progress = calculateOverallProgress(student);
     const totalItems = Object.values(TRAINING_CATEGORIES).reduce((sum, cat) => sum + countTotalItems(cat.sections), 0);
-    const completedItems = Math.round((progress / 100) * totalItems);
+    const completedItems = calculateActualCompletedItems(student); // NEUE KORREKTE BERECHNUNG
 
     html += `
       <div class="student-card" onclick="openStudentDetail('${student.id}')">
