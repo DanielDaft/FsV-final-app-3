@@ -862,6 +862,7 @@ function renderTrainingProgress(student) {
     countCompletedItems(category.sections);
 
     const percentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+    const treatedItems = Math.round(completedItems * 10) / 10;
     const expanded = key === 'grundstufe';
 
     html += `
