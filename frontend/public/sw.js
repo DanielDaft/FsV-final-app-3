@@ -29,13 +29,14 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Aktivierung
+// Aktivierung - LÖSCHE ALLE ALTEN CACHES!
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating...');
+  console.log('[SW] Activating v2.0 with 3-stage calculation fix...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
+          // Lösche ALLE alten Caches, um sicher zu gehen
           if (cacheName !== CACHE_NAME) {
             console.log('[SW] Removing old cache:', cacheName);
             return caches.delete(cacheName);
@@ -43,7 +44,8 @@ self.addEventListener('activate', (event) => {
         })
       );
     }).then(() => {
-      console.log('[SW] Activation complete');
+      console.log('[SW] All old caches deleted, activation complete');
+      // Force update für alle offenen Apps
       return self.clients.claim();
     })
   );
