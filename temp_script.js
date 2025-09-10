@@ -410,9 +410,7 @@ function formatGermanDate(dateString) {
 }
 
 // GESAMTFORTSCHRITT BERECHNEN - KORRIGIERT FÜR 3-STUFEN-SYSTEM
-function calculateOverallProgress(students) {
-  if (!Array.isArray(students) || students.length === 0) return 0;
-
+function calculateOverallProgress(student) {
   let totalItems = 0;
   let completedItems = 0;
 
