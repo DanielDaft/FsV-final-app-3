@@ -1113,7 +1113,7 @@ function getNextStatus(currentStatus) {
 }
 
 // GENERALISIERTE HEADER MIT KREISEN - KORRIGIERT WIE ÜBERLANDFAHRTEN
-function renderCategoryHeaderWithCircles(studentId, category, categoryKey, percentage, completedItems, totalItems) {
+function renderCategoryHeaderWithCircles(studentId, category, categoryKey, percentage, completedItems, totalItems, treatedItems) {
   const progress = StorageManager.getProgressForStudent(studentId);
   const ueCircles = progress[`${categoryKey}_header_ue`] || [];
   const quarterCircles = progress[`${categoryKey}_header_quarters`] || [];
