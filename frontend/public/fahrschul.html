@@ -3276,7 +3276,13 @@ function getStatusSymbol(status) {
 function getNextStatus(currentStatus) {
   const statusCycle = ['not_started', 'once', 'twice', 'thrice'];
   const currentIndex = statusCycle.indexOf(currentStatus || 'not_started');
-  return statusCycle[(currentIndex + 1) % statusCycle.length];
+  const nextIndex = (currentIndex + 1) % statusCycle.length;
+  const nextStatus = statusCycle[nextIndex];
+  
+  // DEBUG LOG FÜR PWA-PROBLEM
+  console.log(`🔄 Status-Rotation: "${currentStatus}" → "${nextStatus}" (Index: ${currentIndex} → ${nextIndex})`);
+  
+  return nextStatus;
 }
 
 // GENERALISIERTE HEADER MIT KREISEN - KORRIGIERT MIT TREATEDITEMS
