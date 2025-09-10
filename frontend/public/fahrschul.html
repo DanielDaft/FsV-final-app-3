@@ -3276,8 +3276,8 @@ function getNextStatus(currentStatus) {
   return statusCycle[(currentIndex + 1) % statusCycle.length];
 }
 
-// GENERALISIERTE HEADER MIT KREISEN - KORRIGIERT WIE ÜBERLANDFAHRTEN
-function renderCategoryHeaderWithCircles(studentId, category, categoryKey, percentage, completedItems, totalItems) {
+// GENERALISIERTE HEADER MIT KREISEN - KORRIGIERT MIT TREATEDITEMS
+function renderCategoryHeaderWithCircles(studentId, category, categoryKey, percentage, completedItems, totalItems, treatedItems) {
   const progress = StorageManager.getProgressForStudent(studentId);
   const ueCircles = progress[`${categoryKey}_header_ue`] || [];
   const quarterCircles = progress[`${categoryKey}_header_quarters`] || [];
