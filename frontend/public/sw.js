@@ -1,5 +1,5 @@
 // Deutsche Fahrschul-App Service Worker - GitHub Pages Version
-const CACHE_NAME = 'fahrschul-app-v1.1';
+const CACHE_NAME = 'fahrschul-app-v2.0-fixed-calculation'; // NEUE VERSION für 3-Stufen-Fix
 const OFFLINE_URL = '/FsV-final-app/frontend/public/offline.html';
 
 // Files zum Cachen für Offline-Nutzung - MIT KORREKTEN GITHUB PAGES PFADEN
