@@ -426,12 +426,15 @@ function calculateActualCompletedItems(student) {
         } else if (section.items) {
           section.items.forEach(item => {
             const status = categoryProgress[sectionKey] && categoryProgress[sectionKey][item];
-            // KORRIGIERTE 3-STUFEN-BERECHNUNG
+            // KORRIGIERTE 3-STUFEN-BERECHNUNG mit Debug
             if (status === 'once') {
+              console.log(`DEBUG: Item "${item}" Status "once" -> +0.33`);
               completedItems += 0.33; // 🔴 ROT (/) = 33%
             } else if (status === 'twice') {
+              console.log(`DEBUG: Item "${item}" Status "twice" -> +0.66`);
               completedItems += 0.66; // 🟡 GELB (×) = 66%
             } else if (status === 'thrice') {
+              console.log(`DEBUG: Item "${item}" Status "thrice" -> +1.0`);
               completedItems += 1.0;  // 🟢 GRÜN (⊗) = 100%
             }
           });
