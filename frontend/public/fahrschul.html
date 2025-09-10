@@ -4879,7 +4879,51 @@ function showTrainingView() {
     console.log('💾 Gespeicherte Fortschritte:', progress);
   };
 
-  console.log('✅ PWA-Debug-Funktionen verfügbar: fixPWACalculation(), checkPWAStatus()');
+    // DATEI-VERSIONS-CHECK FÜR PWA-DEBUGGING
+    window.checkFileVersion = function() {
+      const appVersion = document.querySelector('meta[name="app-version"]')?.content;
+      const lastUpdated = document.querySelector('meta[name="last-updated"]')?.content;
+      const currentURL = window.location.href;
+      const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+      
+      console.log('📋 DATEI-VERSIONS-CHECK:');
+      console.log('  App-Version:', appVersion);
+      console.log('  Letzte Änderung:', lastUpdated);
+      console.log('  Aktuelle URL:', currentURL);
+      console.log('  PWA-Modus:', isStandalone);
+      console.log('  User-Agent:', navigator.userAgent);
+      
+      // Prüfe, ob die korrekte Funktion vorhanden ist
+      const hasCorrectFunction = typeof toggleProgressItem === 'function' && 
+                                 toggleProgressItem.toString().includes('PWA-EVENT-DEBUG');
+      console.log('  Korrekte Funktion geladen:', hasCorrectFunction);
+      
+      alert(`📋 DATEI-VERSIONS-CHECK:\n\nApp-Version: ${appVersion}\nPWA-Modus: ${isStandalone}\nKorrekte Funktion: ${hasCorrectFunction}\nURL: ${currentURL}`);
+      
+      return {
+        appVersion,
+        lastUpdated,
+        currentURL,
+        isStandalone,
+        hasCorrectFunction
+      };
+    };
+
+    console.log('✅ PWA-Debug-Funktionen verfügbar: fixPWACalculation(), checkPWAStatus(), checkFileVersion()');
+
+    // AUTOMATISCHER CHECK BEI PWA-START
+    if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+      console.log('🔍 PWA-MODUS ERKANNT - Automatischer Debug-Check');
+      setTimeout(() => {
+        const versionInfo = checkFileVersion();
+        if (!versionInfo.hasCorrectFunction) {
+          console.error('❌ PWA lädt falsche Datei-Version!');
+          if (confirm('PWA lädt eine veraltete Version!\n\nJetzt Cache leeren und neu laden?')) {
+            fixPWACalculation();
+          }
+        }
+      }, 2000);
+    }
 
 </script>
 </body>
