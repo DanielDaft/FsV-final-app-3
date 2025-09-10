@@ -4714,40 +4714,69 @@ function showTrainingView() {
   }
 }
 
-  // PWA Service Worker - DEAKTIVIERT UM CACHING-PROBLEME ZU VERMEIDEN
+  // PWA Service Worker - OFFLINE-FÄHIG MIT KORREKTER VERSION
   if ('serviceWorker' in navigator) {
-    // LÖSCHE ALLE BESTEHENDEN SERVICE WORKER SOFORT
-    navigator.serviceWorker.getRegistrations().then(registrations => {
-      registrations.forEach(registration => {
-        console.log('🗑️ Deaktiviere Service Worker:', registration.scope);
-        registration.unregister();
-      });
-    });
-    
-    // LÖSCHE ALLE CACHES SOFORT
-    if ('caches' in window) {
-      caches.keys().then(names => {
-        names.forEach(name => {
-          console.log('🗑️ Lösche Cache:', name);
-          caches.delete(name);
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
+      .then((registration) => {
+        console.log('✅ PWA: Offline-fähiger Service Worker registriert');
+        
+        // FORCE-UPDATE FUNKTION FÜR PROBLEMFÄLLE
+        window.forceAppUpdate = function() {
+          if (confirm('App-Cache leeren und neu laden?\n(Behebt Berechnungsprobleme bei PWA)')) {
+            // Service Worker aktualisieren
+            registration.update().then(() => {
+              // Alle Caches löschen
+              return caches.keys().then(names => {
+                return Promise.all(names.map(name => caches.delete(name)));
+              });
+            }).then(() => {
+              console.log('🔄 Cache geleert, lade neu...');
+              window.location.reload(true);
+            });
+          }
+        };
+        
+        // AUTOMATISCHE UPDATE-CHECKS
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed') {
+              if (navigator.serviceWorker.controller) {
+                console.log('✅ Neue App-Version verfügbar');
+                if (confirm('Neue App-Version mit korrekten Berechnungen verfügbar!\nJetzt aktualisieren?')) {
+                  newWorker.postMessage({ action: 'skipWaiting' });
+                  window.location.reload();
+                }
+              } else {
+                console.log('✅ App für Offline-Nutzung bereit');
+              }
+            }
+          });
         });
+        
+        // RELOAD WENN SERVICE WORKER SICH AKTUALISIERT
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            console.log('🔄 Service Worker aktualisiert, lade Seite neu');
+            refreshing = true;
+            window.location.reload();
+          }
+        });
+        
+        // REGELMÄSSIGE UPDATE-CHECKS (alle 30 Sekunden wenn online)
+        setInterval(() => {
+          if (navigator.onLine) {
+            registration.update();
+          }
+        }, 30000);
+        
+      })
+      .catch((error) => {
+        console.error('❌ PWA: Service Worker Fehler:', error);
       });
-    }
-    
-    console.log('⚠️ PWA Service Worker DEAKTIVIERT - App läuft ohne Caching');
-    
-    // MANUELLE UPDATE-FUNKTION OHNE SERVICE WORKER
-    window.forceAppUpdate = function() {
-      if (confirm('App neu laden?\n(Ohne Service Worker - lädt immer die neueste Version)')) {
-        // Local Storage optional löschen
-        if (confirm('Auch alle Schülerdaten löschen?')) {
-          localStorage.clear();
-        }
-        window.location.reload(true);
-      }
-    };
   } else {
-    console.log('⚠️ Service Worker nicht unterstützt - App läuft ohne Caching');
+    console.log('⚠️ Service Worker nicht unterstützt');
   }
 
 </script>
