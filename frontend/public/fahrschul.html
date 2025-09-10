@@ -4765,7 +4765,13 @@ function showTrainingView() {
         });
         
         // iOS Installation Prompt nach App-Start
-        setTimeout(() => showIOSInstallPrompt(), 5000);
+        setTimeout(() => {
+          if (typeof showIOSInstallPrompt === 'function') {
+            showIOSInstallPrompt();
+          } else {
+            console.log('📱 iOS Install Prompt Funktion nicht verfügbar');
+          }
+        }, 5000);
       })
       .catch((error) => {
         console.log('❌ PWA: Service Worker registration failed', error);
