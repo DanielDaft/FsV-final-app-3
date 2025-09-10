@@ -1296,8 +1296,34 @@ function updateCategoryHeaderOnly(studentId, categoryKey) {
   if (!category) return;
   
   const progress = StorageManager.getProgressForStudent(studentId);
-  const [completedItems, totalItems] = [0, 0]; // Dummy values für Header
-  const percentage = 0; // Dummy value für Header
+  const categoryProgress = progress[categoryKey] || {};
+  
+  // KORREKTE BERECHNUNG STATT DUMMY VALUES
+  let completedItems = 0;
+  const totalItems = countTotalItems(category.sections);
+
+  function countCompletedItems(sections) {
+    Object.entries(sections).forEach(([sectionKey, section]) => {
+      if (section.sections) {
+        countCompletedItems(section.sections);
+      } else if (section.items) {
+        section.items.forEach(item => {
+          const status = categoryProgress[sectionKey] && categoryProgress[sectionKey][item];
+          // KORRIGIERTE 3-STUFEN-BERECHNUNG
+          if (status === 'once') {
+            completedItems += 0.33; // 🔴 ROT (/) = 33%
+          } else if (status === 'twice') {
+            completedItems += 0.66; // 🟡 GELB (×) = 66%
+          } else if (status === 'thrice') {
+            completedItems += 1.0;  // 🟢 GRÜN (⊗) = 100%
+          }
+        });
+      }
+    });
+  }
+
+  countCompletedItems(category.sections);
+  const percentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
   
   let headerHtml;
   if (categoryKey === 'uberlandfahrten') {
