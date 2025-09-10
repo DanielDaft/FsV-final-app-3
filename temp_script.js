@@ -1402,8 +1402,8 @@ function toggleBlueCircle(studentId, categoryKey, index) {
 }
 
 // GRUNDSTUFE HEADER MIT KREISEN (für Rückwärtskompatibilität)
-function renderGrundstufeHeader(studentId, category, percentage, completedItems, totalItems) {
-  return renderCategoryHeaderWithCircles(studentId, category, 'grundstufe', percentage, completedItems, totalItems);
+function renderGrundstufeHeader(studentId, category, percentage, completedItems, totalItems, treatedItems) {
+  return renderCategoryHeaderWithCircles(studentId, category, 'grundstufe', percentage, completedItems, totalItems, treatedItems);
 }
 
 // PDF-EXPORT FUNKTIONEN (EINFACH FÜR MOBILE)
