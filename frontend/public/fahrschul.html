@@ -3100,6 +3100,7 @@ function renderTrainingItems(sections, categoryKey, studentId) {
                 <div class="progress-item">
                   <div class="progress-checkbox ${statusClass}" 
                        onclick="toggleProgressItem('${studentId}', '${categoryKey}', '${sectionKey}', '${item}', event)"
+                       ontouchend="handleTouchEnd('${studentId}', '${categoryKey}', '${sectionKey}', '${item}', event)"
                        data-category="${categoryKey}" data-item="${item}">
                     ${symbol}
                   </div>
