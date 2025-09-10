@@ -883,7 +883,7 @@ function renderTrainingProgress(student) {
               <div class="training-progress">
                 <div class="progress-circle"></div>
                 <div class="progress-text">${percentage}%</div>
-                <div class="progress-count">(${Math.round(treatedItems)}/${totalItems})</div>
+                <div class="progress-count">(${treatedItems}/${totalItems})</div>
                 <div class="dropdown-arrow">▼</div>
               </div>
             </div>
