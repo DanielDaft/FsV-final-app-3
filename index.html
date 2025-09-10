@@ -5396,6 +5396,54 @@ function showToast(message, type = 'info') {
   }, 3000);
 }
 
+// CACHE-LEER-FUNKTION FÜR PWA-PROBLEME
+window.clearAppCache = function() {
+  if (confirm('App-Cache leeren und neu laden?\n(Löst PWA Offline-Probleme mit veralteten Berechnungen)')) {
+    // Service Worker Cache leeren
+    if ('caches' in window) {
+      caches.keys().then(names => {
+        names.forEach(name => {
+          console.log('🗑️ Lösche Cache:', name);
+          caches.delete(name);
+        });
+        
+        // Local Storage auch leeren (optional)
+        if (confirm('Auch alle Schülerdaten löschen? (Nur bei Problemen nötig)')) {
+          localStorage.clear();
+        }
+        
+        // Service Worker neu registrieren
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(registrations => {
+            registrations.forEach(registration => registration.unregister());
+          }).then(() => {
+            console.log('🔄 Service Worker deregistriert, lädt neu...');
+            window.location.reload(true);
+          });
+        } else {
+          window.location.reload(true);
+        }
+      });
+    } else {
+      window.location.reload(true);
+    }
+  }
+};
+
+// DEBUG-FUNKTION - ZEIGE AKTUELLE CACHE-VERSION
+window.checkCacheVersion = function() {
+  if ('caches' in window) {
+    caches.keys().then(names => {
+      console.log('📦 Aktuelle Caches:', names);
+      alert('Cache-Versionen:\n' + names.join('\n') + '\n\nErwartet: fahrschul-app-v2.0-fixed-calculation');
+    });
+  }
+};
+
+// GLOBALE DEBUG-FUNKTIONEN VERFÜGBAR MACHEN
+window.clearAppCache = clearAppCache;
+window.checkCacheVersion = checkCacheVersion;
+
 </script>
 </body>
 </html>
