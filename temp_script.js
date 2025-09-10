@@ -1783,6 +1783,7 @@ function updateCategoryProgress(categoryKey, studentId) {
   const categoryProgress = progress[categoryKey] || {};
   
   let completedItems = 0;
+  let treatedItems = 0;   // Einfache Anzahl behandelter Items für Klammer-Anzeige
   const totalItems = countTotalItems(category.sections);
 
   function countCompletedItems(sections) {
@@ -1795,10 +1796,13 @@ function updateCategoryProgress(categoryKey, studentId) {
           // KORRIGIERTE 3-STUFEN-BERECHNUNG
           if (status === 'once') {
             completedItems += 0.33; // 🔴 ROT (/) = 33%
+            treatedItems++; // +1 behandeltes Item
           } else if (status === 'twice') {
             completedItems += 0.66; // 🟡 GELB (×) = 66%
+            treatedItems++; // +1 behandeltes Item
           } else if (status === 'thrice') {
             completedItems += 1.0;  // 🟢 GRÜN (⊗) = 100%
+            treatedItems++; // +1 behandeltes Item
           }
         });
       }
@@ -1814,7 +1818,7 @@ function updateCategoryProgress(categoryKey, studentId) {
   const progressCount = document.querySelector(`#section-${categoryKey}`).parentElement.querySelector('.progress-count');
   
   if (progressText) progressText.textContent = `${percentage}%`;
-  if (progressCount) progressCount.textContent = `(${Math.round(completedItems * 10) / 10}/${totalItems})`;
+  if (progressCount) progressCount.textContent = `(${treatedItems}/${totalItems})`;
 }
 
 // Neuer Fahrschüler Dialog
