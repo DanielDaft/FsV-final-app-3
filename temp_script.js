@@ -1155,7 +1155,7 @@ function renderCategoryHeaderWithCircles(studentId, category, categoryKey, perce
 }
 
 // GENERALISIERTE HEADER FÜR SPEZIAL-FAHRTEN (ÜBERLAND, AUTOBAHN, NACHT)
-function renderSpecialFahrtenHeader(studentId, category, categoryKey, percentage, completedItems, totalItems, blueCircleCount) {
+function renderSpecialFahrtenHeader(studentId, category, categoryKey, percentage, completedItems, totalItems, blueCircleCount, treatedItems) {
   const progress = StorageManager.getProgressForStudent(studentId);
   const blueCircles = progress[`${categoryKey}_blue_circles`] || Array(blueCircleCount).fill(false);
   const quarterCircles = progress[`${categoryKey}_header_quarters`] || [];
